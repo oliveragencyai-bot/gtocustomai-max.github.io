@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">Module — AI Automation Fundamentals</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --accent: #00D4FF;
+            --dark: #0A0A0B;
+            --dark-elevated: #141416;
+            --dark-card: #1A1A1E;
+            --light: #FAFAFA;
+            --gray: #71717A;
+            --gray-light: #A1A1AA;
+            --border: rgba(255,255,255,0.08);
+            --success: #10B981;
+            --error: #EF4444;
+            --warning: #F59E0B;
+            --purple: #8B5CF6;
+            --gto-teal: #00A5B5;
+            --gto-blue: #0A2F5C;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--dark);
+            color: var(--light);
+            min-height: 100vh;
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+        }
+        .container { max-width: 1000px; margin: 0 auto; padding: 0 24px; }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: rgba(10, 10, 11, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--gto-teal) 0%, var(--gto-blue) 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 14px;
+            color: white;
+        }
+        .logo-text { font-size: 1rem; font-weight: 700; color: var(--light); }
+        .logo-text span { color: var(--gto-teal); font-weight: 400; }
+        .nav-links { display: flex; align-items: center; gap: 24px; }
+        .nav-links a { color: var(--gray-light); text-decoration: none; font-size: 0.875rem; font-weight: 500; transition: color 0.2s; }
+        .nav-links a:hover { color: var(--gto-teal); }
+        .btn-logout {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--gray-light);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-logout:hover { border-color: var(--error); color: var(--error); }
+
+        /* Module Header */
+        .module-header {
+            padding: 120px 0 48px;
+            border-bottom: 1px solid var(--border);
+        }
+        .module-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--gto-teal) 0%, var(--accent) 100%);
+            color: var(--dark);
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-bottom: 16px;
+        }
+        .module-title { font-size: 2.5rem; font-weight: 800; margin-bottom: 12px; }
+        .module-description { color: var(--gray-light); font-size: 1.1rem; max-width: 600px; }
+
+        /* Lessons List */
+        .lessons-section { padding: 48px 0; }
+        .lessons-section h2 { font-size: 1.25rem; font-weight: 700; margin-bottom: 24px; }
+        .lessons-list { display: flex; flex-direction: column; gap: 16px; }
+        .lesson-card {
+            background: var(--dark-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .lesson-card:hover { border-color: rgba(0, 165, 181, 0.3); }
+        .lesson-card.active { border-color: var(--gto-teal); }
+        .lesson-card.completed { border-color: rgba(16, 185, 129, 0.3); }
+        .lesson-card.locked { opacity: 0.5; cursor: not-allowed; }
+        .lesson-info h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 4px; }
+        .lesson-info p { color: var(--gray-light); font-size: 0.9rem; }
+        .lesson-status { display: flex; align-items: center; gap: 8px; }
+        .lesson-status-icon { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .lesson-status-icon.completed { background: var(--success); }
+        .lesson-status-icon.active { background: var(--gto-teal); }
+        .lesson-status-icon.locked { background: var(--gray); }
+        .lesson-status-icon svg { width: 14px; height: 14px; color: white; }
+
+        /* Lesson Content */
+        .lesson-content { display: none; padding: 48px 0; }
+        .lesson-content.active { display: block; }
+        .video-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            aspect-ratio: 16/9;
+            background: var(--dark-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 32px;
+        }
+        .video-placeholder {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray);
+        }
+        .video-placeholder svg { width: 64px; height: 64px; color: var(--gto-teal); margin-bottom: 16px; }
+        .content-section { margin-bottom: 48px; }
+        .content-section h3 { font-size: 1.5rem; font-weight: 700; margin-bottom: 24px; }
+        .content-body {
+            background: var(--dark-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 32px;
+            line-height: 1.8;
+        }
+        .content-body h1 { font-size: 1.5rem; margin-bottom: 16px; }
+        .content-body h2 { font-size: 1.25rem; margin: 24px 0 12px; }
+        .content-body p { margin-bottom: 16px; color: var(--gray-light); }
+        .content-body ul, .content-body ol { margin-left: 24px; margin-bottom: 16px; }
+        .content-body li { margin-bottom: 8px; color: var(--gray-light); }
+        .content-body strong { color: var(--light); }
+        .content-body code { background: var(--dark-elevated); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
+
+        /* Quiz Section */
+        .quiz-section { margin-top: 48px; padding-top: 48px; border-top: 1px solid var(--border); }
+        .quiz-container {
+            background: var(--dark-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 32px;
+        }
+        .quiz-question { margin-bottom: 32px; }
+        .quiz-question h4 { font-size: 1.1rem; margin-bottom: 16px; }
+        .quiz-options { display: flex; flex-direction: column; gap: 12px; }
+        .quiz-option {
+            background: var(--dark-elevated);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .quiz-option:hover { border-color: var(--gto-teal); }
+        .quiz-option.selected { border-color: var(--gto-teal); background: rgba(0, 165, 181, 0.1); }
+        .quiz-option.correct { border-color: var(--success); background: rgba(16, 185, 129, 0.1); }
+        .quiz-option.incorrect { border-color: var(--error); background: rgba(239, 68, 68, 0.1); }
+        .btn-submit {
+            width: 100%;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, var(--gto-teal) 0%, var(--accent) 100%);
+            color: var(--dark);
+            font-size: 1rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(0, 165, 181, 0.3); }
+        .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .quiz-result { margin-top: 24px; padding: 20px; border-radius: 12px; text-align: center; }
+        .quiz-result.pass { background: rgba(16, 185, 129, 0.1); border: 1px solid var(--success); }
+        .quiz-result.fail { background: rgba(239, 68, 68, 0.1); border: 1px solid var(--error); }
+
+        /* Navigation */
+        .lesson-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 48px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+        }
+        .btn-nav {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: var(--dark-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--light);
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .btn-nav:hover { border-color: var(--gto-teal); }
+        .btn-nav.primary { background: linear-gradient(135deg, var(--gto-teal) 0%, var(--accent) 100%); color: var(--dark); border: none; }
+
+        /* Resources */
+        .resources-section { margin-top: 48px; padding-top: 48px; border-top: 1px solid var(--border); }
+        .resources-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+        .resource-card {
+            background: var(--dark-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .resource-card:hover { border-color: var(--gto-teal); }
+        .resource-icon { font-size: 2rem; margin-bottom: 12px; }
+        .resource-title { font-weight: 600; margin-bottom: 4px; }
+        .resource-desc { color: var(--gray); font-size: 0.85rem; }
+
+        /* Loading */
+        .loading { display: flex; align-items: center; justify-content: center; min-height: 60vh; }
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid var(--border);
+            border-top-color: var(--gto-teal);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 768px) {
+            .module-title { font-size: 1.75rem; }
+            .lesson-card { flex-direction: column; align-items: flex-start; gap: 16px; }
+            .lesson-nav { flex-direction: column; gap: 12px; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-content">
+            <a href="index.html" class="logo">
+                <div class="logo-icon">GTO</div>
+                <div class="logo-text">Custom <span>Automation</span></div>
+            </a>
+            <div class="nav-links">
+                <a href="dashboard.html">Dashboard</a>
+                <a href="course/index.html">Course Info</a>
+            </div>
+            <div class="user-menu">
+                <button class="btn-logout" id="logout-btn">Log Out</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div id="loading" class="loading"><div class="spinner"></div></div>
+
+        <div id="module-content" style="display: none;">
+            <header class="module-header">
+                <span class="module-badge" id="module-badge">Module 1</span>
+                <h1 class="module-title" id="module-title">Loading...</h1>
+                <p class="module-description" id="module-desc">Loading module content...</p>
+            </header>
+
+            <section class="lessons-section">
+                <h2>Lessons</h2>
+                <div class="lessons-list" id="lessons-list"></div>
+            </section>
+
+            <section class="lesson-content" id="lesson-content">
+                <div class="video-container" id="video-container">
+                    <div class="video-placeholder" id="video-placeholder">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polygon points="10 8 16 12 10 16 10 8"></polygon>
+                        </svg>
+                        <p>Video Coming Soon</p>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <h3>Lesson Content</h3>
+                    <div class="content-body" id="lesson-text">
+                        <p>Loading lesson content...</p>
+                    </div>
+                </div>
+
+                <div class="resources-section" id="resources-section">
+                    <h3>Resources</h3>
+                    <div class="resources-grid" id="resources-grid"></div>
+                </div>
+
+                <div class="quiz-section" id="quiz-section">
+                    <h3>Quiz</h3>
+                    <div class="quiz-container" id="quiz-container">
+                        <p>Loading quiz...</p>
+                    </div>
+                </div>
+
+                <div class="lesson-nav">
+                    <a href="#" class="btn-nav" id="prev-lesson">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                        Previous Lesson
+                    </a>
+                    <a href="#" class="btn-nav primary" id="next-lesson">
+                        Next Lesson
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </a>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/course-content.js"></script>
+
+    <script>
+        const MODULES_DATA = {
+            'module-1': {
+                title: 'Foundations',
+                description: 'What AI automation is, why it matters, and your first system',
+                lessons: [
+                    { id: 'lesson-1', title: 'What is AI Automation & Why It Matters' },
+                    { id: 'lesson-2', title: 'The Zero-Cost Tech Stack' },
+                    { id: 'lesson-3', title: 'Your First AI Conversation' },
+                    { id: 'lesson-4', title: 'Memory & Context Systems' },
+                    { id: 'lesson-5', title: 'Module 1 Project: Your First Automation' }
+                ]
+            },
+            'module-2': {
+                title: 'Setup',
+                description: 'Installing, configuring, and optimizing your AI platform',
+                lessons: [
+                    { id: 'lesson-1', title: 'AI Platform Installation' },
+                    { id: 'lesson-2', title: 'Configuration Essentials' },
+                    { id: 'lesson-3', title: 'Memory Systems Setup' },
+                    { id: 'lesson-4', title: 'Tool Connections' },
+                    { id: 'lesson-5', title: 'Module 2 Project: Complete Setup' }
+                ]
+            },
+            'module-3': {
+                title: 'Core Workflows',
+                description: 'Email management, calendar intelligence, and task automation',
+                lessons: [
+                    { id: 'lesson-1', title: 'Email Management Automation' },
+                    { id: 'lesson-2', title: 'Calendar Intelligence' },
+                    { id: 'lesson-3', title: 'Task Automation' },
+                    { id: 'lesson-4', title: 'Daily Briefings' },
+                    { id: 'lesson-5', title: 'Module 3 Project: Core Workflow System' }
+                ]
+            },
+            'module-4': {
+                title: 'Advanced Workflows',
+                description: 'Content pipelines, client communication, and decision trees',
+                lessons: [
+                    { id: 'lesson-1', title: 'Content Creation Pipelines' },
+                    { id: 'lesson-2', title: 'Client Communication Automation' },
+                    { id: 'lesson-3', title: 'Decision Trees & Logic' },
+                    { id: 'lesson-4', title: 'Multi-Channel Workflows' },
+                    { id: 'lesson-5', title: 'Module 4 Project: Content System' },
+                    { id: 'lesson-6', title: 'Bonus: Advanced Templates' }
+                ]
+            },
+            'module-5': {
+                title: 'Multi-Agent Systems',
+                description: 'Building specialized agents that work together',
+                lessons: [
+                    { id: 'lesson-1', title: 'Specialized Agent Design' },
+                    { id: 'lesson-2', title: 'Agent Coordination' },
+                    { id: 'lesson-3', title: 'Real Architecture Examples' },
+                    { id: 'lesson-4', title: 'Scaling Multi-Agent Systems' },
+                    { id: 'lesson-5', title: 'Module 5 Project: Multi-Agent System' }
+                ]
+            },
+            'module-6': {
+                title: 'Business Applications',
+                description: 'Monetizing skills, client delivery, and scaling',
+                lessons: [
+                    { id: 'lesson-1', title: 'Monetizing Your Skills' },
+                    { id: 'lesson-2', title: 'Client Delivery Systems' },
+                    { id: 'lesson-3', title: 'Scaling Operations' },
+                    { id: 'lesson-4', title: 'Building Your Portfolio' },
+                    { id: 'lesson-5', title: 'Capstone Project: Complete Business Automation' }
+                ]
+            }
+        };
+
+        let currentModule = null;
+        let currentLessonIndex = 0;
+        let userProgress = null;
+
+        // Get module ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const moduleId = urlParams.get('id') || 'module-1';
+
+        // Check auth
+        firebaseAuth.onAuthStateChanged(async (user) => {
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Check access
+            const hasAccess = await authSystem.checkAccess();
+            if (!hasAccess) {
+                window.location.href = 'dashboard.html';
+                return;
+            }
+
+            // Load progress
+            userProgress = await ProgressTracker.getProgress(user.uid);
+            
+            // Load module
+            loadModule();
+        });
+
+        function loadModule() {
+            currentModule = MODULES_DATA[moduleId];
+            if (!currentModule) {
+                window.location.href = 'dashboard.html';
+                return;
+            }
+
+            const moduleIndex = Object.keys(MODULES_DATA).indexOf(moduleId);
+            
+            // Update page
+            document.getElementById('page-title').textContent = `${currentModule.title} — AI Automation Fundamentals`;
+            document.getElementById('module-badge').textContent = `Module ${moduleIndex + 1}`;
+            document.getElementById('module-title').textContent = currentModule.title;
+            document.getElementById('module-desc').textContent = currentModule.description;
+
+            // Render lessons
+            renderLessons();
+
+            // Show content
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('module-content').style.display = 'block';
+
+            // Load first lesson
+            selectLesson(0);
+        }
+
+        function renderLessons() {
+            const container = document.getElementById('lessons-list');
+            container.innerHTML = '';
+
+            const moduleProgress = userProgress?.modules?.[moduleId] || { lessons: {} };
+
+            currentModule.lessons.forEach((lesson, index) => {
+                const lessonProgress = moduleProgress.lessons?.[lesson.id] || {};
+                const isCompleted = lessonProgress.completed;
+                const isActive = index === currentLessonIndex;
+
+                const card = document.createElement('div');
+                card.className = `lesson-card ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}`;
+                card.innerHTML = `
+                    <div class="lesson-info">
+                        <h3>${lesson.title}</h3>
+                        <p>Lesson ${index + 1} of ${currentModule.lessons.length}</p>
+                    </div>
+                    <div class="lesson-status">
+                        <div class="lesson-status-icon ${isCompleted ? 'completed' : (isActive ? 'active' : 'locked')}">
+                            ${isCompleted 
+                                ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>'
+                                : (isActive ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>'
+                                : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>')
+                            }
+                        </div>
+                    </div>
+                `;
+                card.addEventListener('click', () => selectLesson(index));
+                container.appendChild(card);
+            });
+        }
+
+        function selectLesson(index) {
+            currentLessonIndex = index;
+            const lesson = currentModule.lessons[index];
+
+            // Update active state
+            document.querySelectorAll('.lesson-card').forEach((card, i) => {
+                card.classList.toggle('active', i === index);
+            });
+
+            // Update navigation
+            updateNavigation();
+
+            // Show lesson content
+            document.getElementById('lesson-content').classList.add('active');
+
+            // Scroll to lesson content
+            document.getElementById('lesson-content').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function updateNavigation() {
+            const prevBtn = document.getElementById('prev-lesson');
+            const nextBtn = document.getElementById('next-lesson');
+
+            // Previous button
+            if (currentLessonIndex > 0) {
+                prevBtn.style.display = 'flex';
+                prevBtn.onclick = () => selectLesson(currentLessonIndex - 1);
+            } else {
+                prevBtn.style.display = 'none';
+            }
+
+            // Next button
+            if (currentLessonIndex < currentModule.lessons.length - 1) {
+                nextBtn.textContent = 'Next Lesson';
+                nextBtn.onclick = () => selectLesson(currentLessonIndex + 1);
+            } else {
+                nextBtn.textContent = 'Complete Module';
+                nextBtn.href = 'dashboard.html';
+            }
+        }
+
+        // Logout
+        document.getElementById('logout-btn').addEventListener('click', () => authSystem.logout());
+    </script>
+</body>
+</html>

@@ -697,7 +697,7 @@
                 <div class="price-display">$99</div>
                 <p class="price-note">30 lessons • 6 modules • Worksheets • Templates • Updates</p>
                 
-                <a href="https://gtoliverjr.gumroad.com/l/ouujj?wanted=true" class="cta-button">
+                <a href="#" class="cta-button" id="enroll-btn" onclick="handleEnroll(event)">
                     Enroll Now — $99
                 </a>
                 
@@ -715,8 +715,41 @@
             <p><strong>GTO Custom Automation Innovations</strong></p>
             <p>Automation-First Solutions for Modern Business</p>
             <p style="margin-top: 16px;">🧠 Family Over Everything</p>
-            <p style="margin-top: 24px;"><a href="https://gtoautomation.github.io/">← Back to Main Site</a></p>
+            <p style="margin-top: 24px;"><a href="https://gtocustomai-max.github.io/">← Back to Main Site</a></p>
         </div>
     </footer>
+
+    <!-- Firebase SDK (for checking if logged in) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="../firebase-config.js"></script>
+    
+    <script>
+        // Handle enrollment button click
+        function handleEnroll(event) {
+            event.preventDefault();
+            
+            // Check if user is logged in
+            firebaseAuth.onAuthStateChanged((user) => {
+                if (user) {
+                    // User is logged in - redirect to Stripe
+                    window.location.href = 'https://buy.stripe.com/cNi28sfer2GDgvg4OO1ZS07';
+                } else {
+                    // User not logged in - redirect to registration
+                    // Store that they came from the enroll button
+                    sessionStorage.setItem('afterRegister', '../register.html');
+                    window.location.href = '../register.html';
+                }
+            });
+        }
+
+        // Initialize Firebase auth listener
+        firebaseAuth.onAuthStateChanged((user) => {
+            const enrollBtn = document.getElementById('enroll-btn');
+            if (user) {
+                enrollBtn.textContent = 'Purchase & Enroll — $99';
+            }
+        });
+    </script>
 </body>
 </html>
